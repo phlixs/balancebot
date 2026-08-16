@@ -206,11 +206,4 @@ Copyright-Vermerk erhalten bleibt. Die Software kommt ohne Gewähr; das
 gilt ausdrücklich auch für die Sicherheitsgrenzen oben, die für **diesen**
 Aufbau ermittelt wurden.
 
-## Referenz
-
-Als methodische Referenz für die Regelungsauslegung diente Grasser,
-D'Arrigo, Colombi und Rufer (2002): *JOE: A Mobile, Inverted Pendulum.*
-IEEE Transactions on Industrial Electronics 49(1), S. 107–114.
-[doi:10.1109/41.982254](https://doi.org/10.1109/41.982254)
-
 Universitäts- und Hobbyprojekt.
