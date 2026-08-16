@@ -191,7 +191,10 @@ add_part(doc, "N20_motor_L",
          rot=Rot(0.000000, 0.000000, 1.000000, 0.000000))
 
 # ── 9. Wheels (Pololu 90×10mm, product #1439) ────────────────────────────────
-# Loaded from Pololu_Wheel_90x10.FCStd (run create_wheel.py to regenerate).
+# Built procedurally by make_wheel_hub() and make_wheel_tire() above — this
+# script does NOT read Pololu_Wheel_90x10.FCStd. That file is a standalone
+# copy of the same geometry, produced by create_wheel.py; the two definitions
+# are duplicated and have to be kept in step by hand.
 # Wheel geometry: axis along Z, inner face at Z=0, outer face at Z=10,
 #                 bore: Z=2..8 (6 mm engagement depth).
 #
