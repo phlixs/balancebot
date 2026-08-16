@@ -57,8 +57,12 @@ def _rot_z(shape, deg):
     return shape.transformGeometry(mat)
 
 def make_wheel_hub():
-    RIM_OR = 37.0; RIM_IR = 34.0; HUB_R = 13.0
-    SPOKE_W = 4.0; SPOKE_H = 4.0; SPOKE_Z = 3.0
+    RIM_OR = 37.0
+    RIM_IR = 34.0
+    HUB_R = 13.0
+    SPOKE_W = 4.0
+    SPOKE_H = 4.0
+    SPOKE_Z = 3.0
     rim = Part.makeCylinder(RIM_OR, 10.0).cut(Part.makeCylinder(RIM_IR, 10.0))
     hub_plate = Part.makeCylinder(HUB_R, SPOKE_H, Vec(0, 0, SPOKE_Z))
     hw = SPOKE_W / 2.0
@@ -75,7 +79,8 @@ def make_wheel_hub():
     body = rim.fuse(hub_plate).fuse(spokes)
     body = body.cut(Part.makeCylinder(1.5, SPOKE_H + 2.0, Vec(0, 0, SPOKE_Z - 1.0)))
     body = body.cut(Part.makeBox(4.0, 0.6, SPOKE_H + 2.0, Vec(-2.0, 1.0, SPOKE_Z - 1.0)))
-    hz = SPOKE_Z - 0.5; hh = SPOKE_H + 1.0
+    hz = SPOKE_Z - 0.5
+    hh = SPOKE_H + 1.0
     body = body.cut(Part.makeCylinder(1.25, hh, Vec(6.35, 0.0, hz)))
     body = body.cut(Part.makeCylinder(1.25, hh, Vec(-6.35, 0.0, hz)))
     r2 = 9.55 * math.sqrt(0.5)
@@ -106,10 +111,11 @@ def make_wheel_tire():
 def add_part(doc, name, shape, color, pos=(0,0,0), rot=None):
     obj = doc.addObject("Part::Feature", name)
     obj.Shape = shape
-    try:
+    # Im Konsolenbetrieb (freecadcmd) existiert das Attribut, ist aber None —
+    # Farbe setzen wuerde dort mit AttributeError enden. Die Abfrage ist
+    # praeziser als ein try/except: Der Fall ist vorhersehbar, kein Fehler.
+    if obj.ViewObject is not None:
         obj.ViewObject.ShapeColor = color
-    except Exception:
-        pass  # ViewObject not available in headless mode
     if rot is None:
         obj.Placement = Plc(Vec(*pos), Rot(0, 0, 0, 1))
     else:
@@ -245,21 +251,29 @@ DENSITY = {
 def _get_com(shape):
     if hasattr(shape, "CenterOfMass"):
         return shape.Volume, shape.CenterOfMass
-    sv = 0.0; sx = sy = sz = 0.0
+    sv = 0.0
+    sx = sy = sz = 0.0
     for solid in shape.Solids:
-        sv += solid.Volume; c = solid.CenterOfMass
-        sx += c.x * solid.Volume; sy += c.y * solid.Volume; sz += c.z * solid.Volume
+        sv += solid.Volume
+        c = solid.CenterOfMass
+        sx += c.x * solid.Volume
+        sy += c.y * solid.Volume
+        sz += c.z * solid.Volume
     return sv, Vec(sx / sv, sy / sv, sz / sv)
 
-mcx = mcy = mcz = 0.0; mt = 0.0
+mcx = mcy = mcz = 0.0
+mt = 0.0
 for obj in doc.Objects:
     v, c = _get_com(obj.Shape)
     rho = DENSITY.get(obj.Name, 1.0)
     m = v * rho / 1000.0
-    mcx += c.x * m; mcy += c.y * m; mcz += c.z * m; mt += m
+    mcx += c.x * m
+    mcy += c.y * m
+    mcz += c.z * m
+    mt += m
 
 com = Vec(mcx / mt, mcy / mt, mcz / mt)
-print("CoM (mass-weighted): (%.2f, %.2f, %.2f)  total=%.1f g" % (com.x, com.y, com.z, mt))
+print(f"CoM (mass-weighted): ({com.x:.2f}, {com.y:.2f}, {com.z:.2f})  total={mt:.1f} g")
 
 com_sphere = Part.makeSphere(2.0, com)
 com_cross_x = Part.makeCylinder(0.4, 20.0, Vec(com.x - 10, com.y, com.z), Vec(1, 0, 0))

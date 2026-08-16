@@ -54,11 +54,14 @@ AXLE_Z = -14.7
 def get_com(shape):
     if hasattr(shape, "CenterOfMass") and shape.Volume > 0:
         return shape.Volume, shape.CenterOfMass
-    sv = 0.0; sx = sy = sz = 0.0
+    sv = 0.0
+    sx = sy = sz = 0.0
     for solid in shape.Solids:
         sv += solid.Volume
         c = solid.CenterOfMass
-        sx += c.x * solid.Volume; sy += c.y * solid.Volume; sz += c.z * solid.Volume
+        sx += c.x * solid.Volume
+        sy += c.y * solid.Volume
+        sz += c.z * solid.Volume
     from FreeCAD import Vector
     if sv == 0:
         return 0.0, Vector(0, 0, 0)
@@ -72,7 +75,12 @@ def run():
     lines = []
     lines.append("# BalanceBot Center of Mass Analysis")
     lines.append("")
-    lines.append("*Created: %s*  " % datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
+    # astimezone() ohne Argument haengt die Zeitzone der Maschine an. Die
+    # ausgegebene Ortszeit bleibt dieselbe — ein Messprotokoll soll die Zeit
+    # des Versuchs zeigen, nicht UTC —, der Zeitstempel ist aber nicht mehr
+    # zeitzonenlos und damit spaeter eindeutig zuzuordnen.
+    erstellt = datetime.now().astimezone()
+    lines.append(f"*Created: {erstellt:%d.%m.%Y %H:%M:%S}*  ")
     # Repo-relativ, nicht absolut: Der Herkunftsvermerk soll das Skript
     # nennen, nicht das Arbeitsverzeichnis des Rechners, auf dem es lief.
     lines.append("*Script: CAD_BalanceBot/CoM_analysis.py*")
@@ -85,44 +93,52 @@ def run():
             continue
         rho = DENSITY.get(obj.Name, 1.0)
         m = v * rho / 1000.0
-        vol_cx += c.x * v; vol_cy += c.y * v; vol_cz += c.z * v
+        vol_cx += c.x * v
+        vol_cy += c.y * v
+        vol_cz += c.z * v
         vol_total += v
-        mass_cx += c.x * m; mass_cy += c.y * m; mass_cz += c.z * m
+        mass_cx += c.x * m
+        mass_cy += c.y * m
+        mass_cz += c.z * m
         mass_total += m
-        lines.append("| %s | %.1f | %.2f | %.2f | %.2f | %.2f |" % (obj.Name, v, m, c.x, c.y, c.z))
-    vol_cx /= vol_total; vol_cy /= vol_total; vol_cz /= vol_total
-    mass_cx /= mass_total; mass_cy /= mass_total; mass_cz /= mass_total
-    lines.append("| **TOTAL** | **%.1f** | **%.2f** | | | |" % (vol_total, mass_total))
+        lines.append(f"| {obj.Name} | {v:.1f} | {m:.2f} | {c.x:.2f} | {c.y:.2f} | {c.z:.2f} |")
+    vol_cx /= vol_total
+    vol_cy /= vol_total
+    vol_cz /= vol_total
+    mass_cx /= mass_total
+    mass_cy /= mass_total
+    mass_cz /= mass_total
+    lines.append(f"| **TOTAL** | **{vol_total:.1f}** | **{mass_total:.2f}** | | | |")
     lines.append("")
     lines.append("## Summary")
     lines.append("")
     lines.append("| Metric | X [mm] | Y [mm] | Z [mm] |")
     lines.append("|--------|--------|--------|--------|")
-    lines.append("| CoM (volume-weighted) | %.2f | %.2f | %.2f |" % (vol_cx, vol_cy, vol_cz))
-    lines.append("| CoM (mass-weighted) | %.2f | %.2f | %.2f |" % (mass_cx, mass_cy, mass_cz))
+    lines.append(f"| CoM (volume-weighted) | {vol_cx:.2f} | {vol_cy:.2f} | {vol_cz:.2f} |")
+    lines.append(f"| CoM (mass-weighted) | {mass_cx:.2f} | {mass_cy:.2f} | {mass_cz:.2f} |")
     lines.append("")
-    lines.append("- Wheel axle Z = %.1f mm" % AXLE_Z)
-    lines.append("- CoM height above axle: **%.2f mm** (mass-weighted)" % (mass_cz - AXLE_Z))
-    lines.append("- CoM Y offset from axle: **%.2f mm** (positive = forward)" % mass_cy)
+    lines.append(f"- Wheel axle Z = {AXLE_Z:.1f} mm")
+    lines.append(f"- CoM height above axle: **{mass_cz - AXLE_Z:.2f} mm** (mass-weighted)")
+    lines.append(f"- CoM Y offset from axle: **{mass_cy:.2f} mm** (positive = forward)")
     lines.append("")
     lines.append("The coordinate origin is below the botframe base plate. Check the CAD-Assembly-File in FreeCAD to verify")
     lines.append("")
     lines.append("For balancing: the CoM should be ABOVE the wheel axle (high Z) and centered on the axle in Y.")
-    lines.append("")    
+    lines.append("")
     if mass_cz > AXLE_Z:
         lines.append("> CoM is **ABOVE** the axle (inverted pendulum, balanceable)")
     else:
         lines.append("> CoM is **BELOW** the axle (stable but not a balance bot config)")
     output = "\n".join(lines) + "\n"
     print(output)
-    date_str = datetime.now().strftime("%Y%m%d")
-    out_path = BASE + "/CoM_analysis_results_%s.md"% date_str
+    date_str = f"{erstellt:%Y%m%d}"
+    out_path = BASE + f"/CoM_analysis_results_{date_str}.md"
     # encoding und newline explizit: Ohne sie schriebe Python unter Windows
     # in der Locale-Kodierung und mit CRLF, unter Linux in UTF-8 und mit LF —
     # dieselbe Auswertung ergaebe je nach Maschine eine andere Datei.
     with open(out_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(output)
-    print("Results written to: %s" % out_path)
+    print(f"Results written to: {out_path}")
     App.closeDocument(doc.Name)
 
 run()

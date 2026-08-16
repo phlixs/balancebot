@@ -150,17 +150,16 @@ doc = App.newDocument("Pololu_Wheel_90x10")
 
 hub_obj = doc.addObject("Part::Feature", "Wheel_Hub")
 hub_obj.Shape = make_hub()
-try:
+# Im Konsolenbetrieb (freecadcmd) existiert das Attribut, ist aber None —
+# Farbe setzen wuerde dort mit AttributeError enden. Die Abfrage ist
+# praeziser als ein try/except: Der Fall ist vorhersehbar, kein Fehler.
+if hub_obj.ViewObject is not None:
     hub_obj.ViewObject.ShapeColor = (0.95, 0.95, 0.95)
-except Exception:
-    pass
 
 tire_obj = doc.addObject("Part::Feature", "Wheel_Tire")
 tire_obj.Shape = make_tire()
-try:
+if tire_obj.ViewObject is not None:
     tire_obj.ViewObject.ShapeColor = (0.10, 0.10, 0.10)
-except Exception:
-    pass
 
 doc.recompute()
 out = BASE + "/Pololu_Wheel_90x10.FCStd"

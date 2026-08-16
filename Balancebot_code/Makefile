@@ -132,6 +132,9 @@ acquire-carrier:
 .PHONY: lint
 lint:
 	ruff check python/acquire.py python/process.py python/analyze.py python/config.py
+# ../CAD_BalanceBot ohne wildcard-Schutz: Der Ordner ist auch im
+# oeffentlichen Spiegel vorhanden, anders als berechnungen und werkzeuge.
+	ruff check ../CAD_BalanceBot/
 ifneq ($(BERECHNUNGEN),)
 	ruff check ../berechnungen/
 endif
