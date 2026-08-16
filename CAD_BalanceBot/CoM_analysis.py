@@ -1,6 +1,18 @@
 """
 Center of Mass analysis for BalanceBot Assembly.
-Run with:  cat CoM_analysis.py | /snap/bin/freecad --console
+
+Run with the script as an argument — this sets __file__, so the working
+directory does not matter:
+
+  Linux (snap):    /snap/bin/freecad.cmd CoM_analysis.py
+  Linux (distro):  freecadcmd CoM_analysis.py
+  Windows:         "…\\FreeCAD\\bin\\FreeCADCmd.exe" CoM_analysis.py
+
+Piping still works, but leaves __file__ unset and falls back to the
+working directory — then run it from CAD_BalanceBot/:
+
+  cat CoM_analysis.py | /snap/bin/freecad.cmd      (Linux)
+  Get-Content CoM_analysis.py | FreeCADCmd.exe     (Windows PowerShell)
 
 Reports per-part CoM and the assembly CoM, both volume-weighted
 and mass-weighted (with material densities).
@@ -105,9 +117,11 @@ def run():
     print(output)
     date_str = datetime.now().strftime("%Y%m%d")
     out_path = BASE + "/CoM_analysis_results_%s.md"% date_str
-    f = open(out_path, "w")
-    f.write(output)
-    f.close()
+    # encoding und newline explizit: Ohne sie schriebe Python unter Windows
+    # in der Locale-Kodierung und mit CRLF, unter Linux in UTF-8 und mit LF —
+    # dieselbe Auswertung ergaebe je nach Maschine eine andere Datei.
+    with open(out_path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(output)
     print("Results written to: %s" % out_path)
     App.closeDocument(doc.Name)
 

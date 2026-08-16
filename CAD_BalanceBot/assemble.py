@@ -1,6 +1,17 @@
 """
 BalanceBot Assembly Script — FreeCAD 1.1
-Run with:  cat assemble.py | /snap/bin/freecad --console
+
+Run with the script as an argument — this sets __file__, so the working
+directory does not matter:
+
+  Linux (snap):    /snap/bin/freecad.cmd assemble.py
+  Linux (distro):  freecadcmd assemble.py
+  Windows:         "…\\FreeCAD\\bin\\FreeCADCmd.exe" assemble.py
+
+Piping still works, but leaves __file__ unset and falls back to the
+working directory — then run it from CAD_BalanceBot/.
+
+WARNING: overwrites BalanceBotAssembly.FCStd, which is version-controlled.
 
 Placements last synced from BalanceBotAssembly.FCStd (manually adjusted in GUI).
 

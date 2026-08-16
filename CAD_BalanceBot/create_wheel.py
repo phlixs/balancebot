@@ -4,7 +4,17 @@ Creates Pololu_Wheel_90x10.FCStd with two Part::Feature objects:
   Wheel_Hub  — white ABS, 6 spokes, shaft bore, mounting holes
   Wheel_Tire — black silicone, horizontal treads
 
-Run with:  cat create_wheel.py | /snap/bin/freecad --console
+Run with the script as an argument — this sets __file__, so the working
+directory does not matter:
+
+  Linux (snap):    /snap/bin/freecad.cmd create_wheel.py
+  Linux (distro):  freecadcmd create_wheel.py
+  Windows:         "…\\FreeCAD\\bin\\FreeCADCmd.exe" create_wheel.py
+
+Piping still works, but leaves __file__ unset and falls back to the
+working directory — then run it from CAD_BalanceBot/.
+
+WARNING: overwrites Pololu_Wheel_90x10.FCStd, which is version-controlled.
 
 Dimensions (from pololu.com/product/1439 + image analysis):
   Outer diameter      : 90 mm  (tire OD)
