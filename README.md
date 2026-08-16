@@ -205,5 +205,3 @@ Verhalten, das gar nicht vom Regler kommt.
 Copyright-Vermerk erhalten bleibt. Die Software kommt ohne Gewähr; das
 gilt ausdrücklich auch für die Sicherheitsgrenzen oben, die für **diesen**
 Aufbau ermittelt wurden.
-
-Universitäts- und Hobbyprojekt.
