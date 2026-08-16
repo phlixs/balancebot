@@ -1,5 +1,7 @@
 # BalanceBot
 
+![Der BalanceBot als CAD-Baugruppe: zwei 90-mm-Räder auf einer Achse, dazwischen der 3D-gedruckte Rahmen mit dem Nano Motor Carrier und dem Arduino Nano 33 IoT auf der Trägerplatte, darunter die Motorhalter mit den N20-Getriebemotoren und dem 18650-Akku.](abbildungen/balancebot-cad.png)
+
 Ein zweirädriger selbstbalancierender Roboter (inverses Pendel) auf Basis
 eines **Arduino Nano 33 IoT** mit **Nano Motor Carrier**.
 
@@ -197,15 +199,18 @@ Verhalten, das gar nicht vom Regler kommt.
 
 ---
 
-## Herkunft
+## Lizenz
 
-Dieses Repo ist ein **Auszug**. Firmware und CAD werden aus einem privaten
-Entwicklungsrepo gespiegelt, das zusätzlich den Bericht, die Anforderungs-
-und Annahmenregister, die Auslegungsrechnung, die Entscheidungsprotokolle
-und das Logbuch führt.
+[MIT](LICENSE) — Nutzung, Änderung und Weitergabe sind frei, solange der
+Copyright-Vermerk erhalten bleibt. Die Software kommt ohne Gewähr; das
+gilt ausdrücklich auch für die Sicherheitsgrenzen oben, die für **diesen**
+Aufbau ermittelt wurden.
 
-Deshalb trägt dieses Repo keine feingliedrige Historie: Jeder Abgleich ist
-ein Commit. Als methodische Referenz für die Regelungsauslegung diente
-Grasser et al. (2002), *JOE: A Mobile, Inverted Pendulum*.
+## Referenz
+
+Als methodische Referenz für die Regelungsauslegung diente Grasser,
+D'Arrigo, Colombi und Rufer (2002): *JOE: A Mobile, Inverted Pendulum.*
+IEEE Transactions on Industrial Electronics 49(1), S. 107–114.
+[doi:10.1109/41.982254](https://doi.org/10.1109/41.982254)
 
 Universitäts- und Hobbyprojekt.
