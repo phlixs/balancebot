@@ -1,0 +1,53 @@
+// ============================================================
+// Encoder-Test fuer den BalanceBot
+// Liest beide Encoder am Motor Carrier aus und zeigt die Werte.
+//
+// Drehe die Raeder von Hand und schau ob sich die Werte aendern.
+// ============================================================
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <ArduinoMotorCarrier.h>
+
+void setup() {
+    Serial.begin(115200);
+    while (!Serial) delay(10);
+
+    Serial.println("=== Encoder-Test ===");
+
+    if (controller.begin()) {
+        Serial.print("Motor Carrier OK! Firmware: ");
+        Serial.println(controller.getFWVersion());
+    } else {
+        Serial.println("Motor Carrier nicht gefunden!");
+        while (1) delay(100);
+    }
+
+    controller.reboot();
+    delay(500);
+
+    encoder1.resetCounter(0);
+    encoder2.resetCounter(0);
+
+    Serial.println("Drehe die Raeder von Hand!");
+    Serial.println("enc1_count, enc1_speed, enc2_count, enc2_speed");
+    Serial.println();
+}
+
+void loop() {
+    int count1 = encoder1.getRawCount();
+    int speed1 = encoder1.getCountPerSecond();
+    int count2 = encoder2.getRawCount();
+    int speed2 = encoder2.getCountPerSecond();
+
+    Serial.print(count1);
+    Serial.print(", ");
+    Serial.print(speed1);
+    Serial.print(", ");
+    Serial.print(count2);
+    Serial.print(", ");
+    Serial.println(speed2);
+
+    controller.ping();
+    delay(100);
+}

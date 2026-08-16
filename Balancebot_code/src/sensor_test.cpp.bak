@@ -1,0 +1,63 @@
+// ============================================================
+// Sensor-Test: Rohes vs. gefiltertes Pitch-Signal
+//
+// Gibt beide Werte als CSV ueber Serial aus.
+// Zum Plotten: python plot_sensor.py
+// ============================================================
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <ArduinoMotorCarrier.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+float pitch_gefiltert = 0.0;
+const float FILTER_ALPHA = 0.2;  // Gleicher Wert wie in balance.cpp
+
+void setup() {
+    Serial.begin(115200);
+    while (!Serial) delay(10);
+
+    if (controller.begin()) {
+        Serial.println("Motor Carrier OK");
+    } else {
+        Serial.println("Motor Carrier FEHLER");
+        while (1) delay(100);
+    }
+    controller.reboot();
+    delay(500);
+
+    if (!bno.begin()) {
+        Serial.println("BNO055 FEHLER");
+        while (1) delay(100);
+    }
+    bno.setExtCrystalUse(true);
+
+    // Ersten Sensorwert lesen um Filter zu initialisieren
+    sensors_event_t event;
+    bno.getEvent(&event);
+    pitch_gefiltert = event.orientation.z;
+
+    Serial.println("millis,pitch_roh,pitch_gefiltert");
+    delay(1000);
+}
+
+void loop() {
+    sensors_event_t event;
+    bno.getEvent(&event);
+    float pitch_roh = event.orientation.z;
+
+    pitch_gefiltert = FILTER_ALPHA * pitch_roh + (1.0 - FILTER_ALPHA) * pitch_gefiltert;
+
+    Serial.print(millis());
+    Serial.print(",");
+    Serial.print(pitch_roh, 2);
+    Serial.print(",");
+    Serial.println(pitch_gefiltert, 2);
+
+    controller.ping();
+    delay(10);
+}

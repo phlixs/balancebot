@@ -1,0 +1,81 @@
+# Baut alle PlatformIO-Umgebungen und laesst die nativen Unit-Tests laufen.
+#
+# Anders als im privaten Entwicklungsrepo ohne paths-Filter: Dieses Repo
+# wird als Ganzes gespiegelt, ein Abgleich kann auch nur das CAD betreffen,
+# und ein Build je Push ist hier billig genug.
+
+name: Build Firmware
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile ${{ matrix.env }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - balance
+          - balance_v1
+          - hw_check
+          - carrier_timing
+          - imu_latency
+          - deadzone_id
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ hashFiles('Balancebot_code/platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Compile ${{ matrix.env }}
+        working-directory: Balancebot_code
+        run: pio run -e ${{ matrix.env }}
+
+  test:
+    name: Native unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ hashFiles('Balancebot_code/platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Run native tests
+        working-directory: Balancebot_code
+        run: pio test -e native

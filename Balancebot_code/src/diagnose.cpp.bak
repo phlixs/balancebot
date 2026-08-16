@@ -1,0 +1,73 @@
+// ============================================================
+// Diagnose-Sketch: Motor-Richtung testen
+//
+// Faehrt M1 und M2 mit Duty +30 fuer 2 Sekunden,
+// zeigt dabei Encoder-Werte.
+// RAEDER IN DER LUFT!
+// ============================================================
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <ArduinoMotorCarrier.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+void setup() {
+    Serial.begin(115200);
+    while (!Serial) delay(10);
+
+    Serial.println("=== Motor-Richtungstest ===");
+    Serial.println("RAEDER IN DER LUFT!");
+    Serial.println();
+
+    if (controller.begin()) {
+        Serial.println("Motor Carrier OK");
+    } else {
+        Serial.println("Motor Carrier FEHLER");
+        while (1) delay(100);
+    }
+    controller.reboot();
+    delay(500);
+
+    if (!bno.begin()) {
+        Serial.println("BNO055 FEHLER");
+        while (1) delay(100);
+    }
+    bno.setExtCrystalUse(true);
+
+    M1.setDuty(0);
+    M2.setDuty(0);
+    encoder1.resetCounter(0);
+    encoder2.resetCounter(0);
+
+    delay(1000);
+
+    // --- Test: Beide Motoren Duty +30 ---
+    Serial.println("Starte: M1=+30, M2=+30");
+    M1.setDuty(-30);
+    M2.setDuty(30);
+
+    for (int i = 0; i < 20; i++) {
+        Serial.print("Enc1: ");
+        Serial.print(encoder1.getRawCount());
+        Serial.print("  Enc2: ");
+        Serial.println(encoder2.getRawCount());
+        controller.ping();
+        delay(100);
+    }
+
+    M1.setDuty(0);
+    M2.setDuty(0);
+    Serial.println("Stop.");
+    Serial.println();
+    Serial.println("Ergebnis: Welcher Encoder geht hoch, welcher runter?");
+    Serial.println("Dreht der Bot nach vorne oder hinten?");
+}
+
+void loop() {
+    controller.ping();
+    delay(100);
+}

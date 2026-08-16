@@ -1,0 +1,36 @@
+[project]
+name = "balancebot"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pyserial",
+    "pillow",
+    "imageio-ffmpeg",
+]
+
+[tool.ruff]
+src = ["python"]
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes (undefined names, unused imports)
+    "I",   # isort (import order)
+    "UP",  # pyupgrade (modernise syntax)
+]
+ignore = [
+    "E501", # line too long — matplotlib calls make this impractical
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Superseded scripts: do not lint, do not extend
+"python/plot_serial.py"    = ["ALL"]
+"python/serial_to_csv.py"  = ["ALL"]
+"python/plot_csv.py"       = ["ALL"]
+"python/plot_pid_live.py"  = ["ALL"]
+"python/plot_sensor_live.py" = ["ALL"]

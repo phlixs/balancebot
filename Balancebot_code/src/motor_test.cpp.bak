@@ -1,0 +1,114 @@
+// ============================================================
+// Motor-Test fuer den BalanceBot
+// Testet beide Motoren (M1 und M2) am Arduino Nano Motor Carrier
+//
+// WICHTIG: Heb den Roboter hoch oder nimm die Raeder ab,
+//          damit er nicht vom Tisch faehrt!
+// ============================================================
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <ArduinoMotorCarrier.h>
+
+// Geschwindigkeit in Prozent (0 bis 100)
+// Wir starten mit 50%, damit es nicht zu wild wird
+const int SPEED = 50;
+
+void setup() {
+    // Serielle Verbindung starten (zum Lesen von Nachrichten am PC)
+    Serial.begin(115200);
+    while (!Serial) delay(10);
+
+    Serial.println("=== BalanceBot Motor-Test ===");
+    Serial.println("ACHTUNG: Roboter hochheben oder Raeder abnehmen!");
+    Serial.println();
+
+    // Verbindung zum Motor Carrier herstellen
+    if (controller.begin()) {
+        Serial.print("Motor Carrier verbunden! Firmware: ");
+        Serial.println(controller.getFWVersion());
+    } else {
+        // Wenn keine Verbindung: Fehlermeldung und Stop
+        Serial.println("Motor Carrier nicht gefunden!");
+        Serial.println("Pruefe die Verbindung und ob die rote LED blinkt.");
+        while (1) delay(100);
+    }
+
+    // Motor Carrier zuruecksetzen (alle Werte auf Standard)
+    controller.reboot();
+    delay(500);
+
+    Serial.println("Motor Carrier bereit. Test startet...");
+    Serial.println();
+}
+
+void loop() {
+    // --- SCHRITT 1: Rampe hoch (vorwaerts) ---
+    Serial.println("Rampe hoch: 0% -> 50% vorwaerts...");
+    for (int speed = 0; speed <= SPEED; speed += 5) {
+        M1.setDuty(speed);
+        M2.setDuty(speed);
+        controller.ping();
+        Serial.print("  Speed: ");
+        Serial.println(speed);
+        delay(100);
+    }
+
+    // 1 Sekunde bei voller Geschwindigkeit halten
+    Serial.println("Halte 50%...");
+    for (int i = 0; i < 10; i++) {
+        controller.ping();
+        delay(100);
+    }
+
+    // --- SCHRITT 2: Rampe runter (stop) ---
+    Serial.println("Rampe runter: 50% -> 0%...");
+    for (int speed = SPEED; speed >= 0; speed -= 5) {
+        M1.setDuty(speed);
+        M2.setDuty(speed);
+        controller.ping();
+        delay(100);
+    }
+
+    // 1 Sekunde Pause
+    Serial.println("Stop!");
+    for (int i = 0; i < 10; i++) {
+        controller.ping();
+        delay(100);
+    }
+
+    // --- SCHRITT 3: Rampe hoch (rueckwaerts) ---
+    Serial.println("Rampe hoch: 0% -> -50% rueckwaerts...");
+    for (int speed = 0; speed <= SPEED; speed += 5) {
+        M1.setDuty(-speed);
+        M2.setDuty(-speed);
+        controller.ping();
+        delay(100);
+    }
+
+    // 1 Sekunde halten
+    Serial.println("Halte -50%...");
+    for (int i = 0; i < 10; i++) {
+        controller.ping();
+        delay(100);
+    }
+
+    // --- SCHRITT 4: Rampe runter (stop) ---
+    Serial.println("Rampe runter: -50% -> 0%...");
+    for (int speed = SPEED; speed >= 0; speed -= 5) {
+        M1.setDuty(-speed);
+        M2.setDuty(-speed);
+        controller.ping();
+        delay(100);
+    }
+
+    Serial.println("Stop!");
+    Serial.println("--- Durchlauf fertig, starte neu... ---");
+    Serial.println();
+
+    // 2 Sekunden Pause
+    for (int i = 0; i < 20; i++) {
+        controller.ping();
+        delay(100);
+    }
+}

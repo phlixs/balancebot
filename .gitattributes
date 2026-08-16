@@ -1,0 +1,48 @@
+# Zeilenenden projektweit auf LF festnageln. Dieses Repo wird auf Linux
+# und auf Windows bearbeitet; ohne diese Datei legt git unter Windows
+# CRLF ab und dieselbe Datei wechselt bei jedem Plattformwechsel als
+# Phantom-Aenderung ihren Inhalt.
+#
+# eol=lf gilt fuer die Ablage IM Repo. Editoren unter Windows kommen mit
+# LF durchweg zurecht, PlatformIO und der Arduino-Compiler ebenso.
+
+*               text=auto eol=lf
+
+# --- Explizit binaer: nie Zeilenenden anfassen, nie als Text diffen ---
+*.pdf           binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.stl           binary
+*.FCStd         binary
+*.FCBak         binary
+*.3mf           binary
+*.zip           binary
+
+# CAD-Austauschformate. STEP ist zwar ASCII, wird hier aber bewusst als
+# binaer gefuehrt: Die Dateien stammen aus Bauteilbibliotheken der
+# Hersteller, sind nicht sinnvoll diffbar, und einige liegen mit CRLF im
+# Bestand. Ohne diese Zeilen wuerde eol=lf sie byteweise umschreiben —
+# eine Aenderung ohne jeden Nutzen.
+*.step          binary
+*.STEP          binary
+*.stp           binary
+*.dwg           binary
+
+# --- Textformate mit LF, auch wenn die Heuristik unsicher waere ---
+*.py            text eol=lf
+*.md            text eol=lf
+*.csv           text eol=lf
+*.h             text eol=lf
+*.cpp           text eol=lf
+*.ino           text eol=lf
+*.json          text eol=lf
+*.txt           text eol=lf
+*.ini           text eol=lf
+*.yml           text eol=lf
+
+# --- Bestandsschutz: historische Messdaten bleiben byte-genau ---
+# Zwei PID-Logs liegen mit CRLF im Bestand. Die Regel oben wuerde sie
+# normalisieren und damit den Rohdatenstand aendern. Neue CSVs ausserhalb
+# dieses Ordners bekommen weiterhin LF.
+Balancebot_code/messungen/*.csv   -text
